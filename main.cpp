@@ -26,7 +26,7 @@ int numLixos = 0;
 // tempo em que ocorreu o último spawn
 int ultimoSpawn = 0;
 int pontuacao = 0;
-int vidas = 0; // Número de vidas do jogador
+int vidas = 3; // Número de vidas do jogador
 
 int randInt(int max) {
     return rand() % max;
