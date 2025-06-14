@@ -26,7 +26,7 @@ int numLixos = 0;
 // tempo em que ocorreu o último spawn
 int ultimoSpawn = 0;
 int pontuacao = 0;
-int vidas = 3; // Número de vidas do jogador
+int vidas = 0; // Número de vidas do jogador
 
 int randInt(int max) {
     return rand() % max;
@@ -174,23 +174,20 @@ void Desenha() {
     glColor3f(0, 0, 0);
     char textoPontuacao[50];
     sprintf(textoPontuacao, "Pontos: %d", pontuacao);
-    desenhaTexto(-wid + 1, 23, textoPontuacao);
+    desenhaTexto(-wid + 1, hei - 27, textoPontuacao);
 
     // Desenha as vidas
     char textoVidas[50];
     sprintf(textoVidas, "Vidas: %d", vidas);
-    desenhaTexto(-wid + 1, 20, textoVidas);
+    desenhaTexto(-wid + 1, hei - 30, textoVidas);
 
-    // Verifica se o jogo acabou
+    // Verifica se o jogo acabou, e se foi resetado, os textos somem
     if (vidas <= 0) {
-        glColor3f(1, 0, 0);
-        desenhaTexto(-5.61, 1, "GAME OVER");
+        glColor3f(0, 0, 0);
+        desenhaTexto(wid/2 - 1, hei/2, "FIM DE JOGO");
         desenhaTexto(-10, -2, "Pressione End para sair");
-    } else {
-        // tira os textos da tela caso o jogo tenha sido reiniciado
-        glColor3f(1, 0, 0);
-        desenhaTexto(-50, 1, "GAME OVER");
-        desenhaTexto(-50, -2, "Pressione End para sair");
+        desenhaTexto(-10, -5, "Pressione Home para voltar ao menu principal");
+        desenhaTexto(-10, -8, "Pressione PgUp para reiniciar");
     }
 
     glFlush();
