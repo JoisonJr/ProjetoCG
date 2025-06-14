@@ -26,7 +26,7 @@ int numLixos = 0;
 // tempo em que ocorreu o último spawn
 int ultimoSpawn = 0;
 int pontuacao = 0;
-int vidas = 1; // Número de vidas do jogador
+int vidas = 0; // Número de vidas do jogador
 
 int randInt(int max) {
     return rand() % max;
@@ -160,7 +160,7 @@ void Desenha() {
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT);
 
-    desenhaEixos();
+    //desenhaEixos();
 
     desenhaChao();
     desenhaLixos();
@@ -184,8 +184,8 @@ void Desenha() {
     // Verifica se o jogo acabou
     if (vidas <= 0) {
         glColor3f(1, 0, 0);
-        desenhaTexto(-3, 1, "GAME OVER");
-        desenhaTexto(-4, -2, "Pressione ESC para sair");
+        desenhaTexto(-5.61, 1, "GAME OVER");
+        desenhaTexto(-10, -2, "Pressione ESC para sair");
     }
 
     glFlush();
