@@ -49,7 +49,7 @@ void novoLixo() {
         // evita que o lixo apareça exatamente nos dois cantos da tela, impossibilitando
         // que ele seja pego
         lixos[numLixos].x = -wid + (randX ? (randX == wid ? randX - 3 : randX) : 3);
-        lixos[numLixos].y = 25;
+        lixos[numLixos].y = hei-1;
         geraCorLixo(&lixos[numLixos].r, &lixos[numLixos].g, &lixos[numLixos].b, &lixos[numLixos].tipo);
         
         numLixos++;
@@ -185,7 +185,12 @@ void Desenha() {
     if (vidas <= 0) {
         glColor3f(1, 0, 0);
         desenhaTexto(-5.61, 1, "GAME OVER");
-        desenhaTexto(-10, -2, "Pressione ESC para sair");
+        desenhaTexto(-10, -2, "Pressione End para sair");
+    } else {
+        // tira os textos da tela caso o jogo tenha sido reiniciado
+        glColor3f(1, 0, 0);
+        desenhaTexto(-50, 1, "GAME OVER");
+        desenhaTexto(-50, -2, "Pressione End para sair");
     }
 
     glFlush();
@@ -217,16 +222,38 @@ void AlteraJanela(GLsizei w, GLsizei h) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     if (w <= h) {
-        gluOrtho2D(-25.0f, 25.0f, -25.0f*h/w, 25.0f*h/w);
+        gluOrtho2D(-25.0f, 25.0f, -25.0f * h / w, 40.0f * h / w);
         wid = 25.0f;
+        hei = 40.0f * h / w - (-25.0f * h / w); // hei = top - bottom
     } else {
-        gluOrtho2D(-25.0f*w/h, 25.0f*w/h, -25.0f, 25.0f);
-        wid = 25.0f*w/h;
+        gluOrtho2D(-25.0f * w / h, 25.0f * w / h, -25.0f, 40.0f);
+        wid = 25.0f * w / h;
+        hei = 40.0f - (-25.0f); // hei = top - bottom
+    }
+}
+
+void TeclasEspeciais(int key, int x, int y) {
+    switch (key) {
+        // fecha o jogo
+        case GLUT_KEY_END: {
+            exit(0);
+        }
+        // retorna ao menu principal
+        case GLUT_KEY_HOME: {
+            break;
+        }
+        // reseta o jogo
+        case GLUT_KEY_PAGE_UP: {
+            // numLixos = 0 limpa todos os lixos da tela
+            numLixos = 0;
+            vidas = 3;
+            pontuacao = 0;
+            break;
+        }
     }
 }
 
 void Teclado(unsigned char key, int x, int y) {
-    if (key == 27) exit(0);
     switch (key) {
         case 'q': case 'Q': rLata = 1; gLata = bLata = 0; estadosLata = 0; break; // Plástico
         case 'w': case 'W': gLata = 0.5; rLata = bLata = 0; estadosLata = 1; break; // Vidro
@@ -264,6 +291,7 @@ int main(int argc, char **argv) {
     glutDisplayFunc(Desenha);
     glutReshapeFunc(AlteraJanela);
     glutKeyboardFunc(Teclado);
+    glutSpecialFunc(TeclasEspeciais);
     glutMouseFunc(controlaMouse);
     glutMotionFunc(arrastaMouse);
     glutTimerFunc(0, Timer, 0);
