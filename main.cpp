@@ -6,7 +6,7 @@
 
 #define TYPES 4
 #define MAX_LIXOS 12
-#define VELOCIDADE 0.27
+float velocidadeLixo = 0.2; // velocidade inicial
 
 typedef struct {
     GLfloat x, y;
@@ -65,7 +65,7 @@ void desenhaTexto(float x, float y, char *texto) {
 
 void atualizaLixos() {
     for (int i = 0; i < numLixos; i++) {
-        lixos[i].y -= VELOCIDADE;
+        lixos[i].y -= velocidadeLixo;
         
         // Verifica se o lixo atingiu a lixeira
         if (lixos[i].y < -12 && lixos[i].y > -20) 
@@ -195,16 +195,15 @@ void Desenha() {
 
 void Timer(int value) {
     if (vidas > 0) {
-        // pega o número de ms desde que glutInit foi chamado, útil para
-        // controlar o tempo de spawn e para diminuir INTERVALO_SPAWN
         int tempoAtual = glutGet(GLUT_ELAPSED_TIME);
-        
-        // decrementa INTERVALO_SPAWN conforme o tempo passa, mas limitando-o
-        // a, no mínimo, 
+
         if (tempoAtual - ultimoSpawn > intervalo) {
             novoLixo();
             ultimoSpawn = tempoAtual;
         }
+
+        // Aumenta a velocidade a cada 100 pontos
+        velocidadeLixo = 0.2 + (pontuacao / 100) * 0.05;
 
         atualizaLixos();
         glutPostRedisplay();
@@ -276,6 +275,10 @@ void Inicializa() {
     glClearColor(1, 1, 1, 1);
     srand(time(NULL));
     ultimoSpawn = glutGet(GLUT_ELAPSED_TIME);
+}
+
+void aumentarVelocidade(){
+    
 }
 
 int main(int argc, char **argv) {
