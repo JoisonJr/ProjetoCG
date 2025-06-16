@@ -6,6 +6,9 @@
 
 #define TYPES 4
 #define MAX_LIXOS 12
+#define VIDAS_ORIGINAIS 8
+#define BONUS_VIDAS 3
+#define INTERVALO_BONUS 250
 float velocidadeLixo = 0.2; // velocidade inicial
 
 typedef struct {
@@ -26,7 +29,9 @@ int numLixos = 0;
 // tempo em que ocorreu o último spawn
 int ultimoSpawn = 0;
 int pontuacao = 0;
-int vidas = 0; // Número de vidas do jogador
+int vidas = VIDAS_ORIGINAIS; // Número de vidas do jogador
+// garante que 3 vidas são adicionadas a cada 250 pontos
+int ultimoBonus = 0;
 
 int randInt(int max) {
     return rand() % max;
@@ -61,6 +66,124 @@ void desenhaTexto(float x, float y, char *texto) {
     for (char *c = texto; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
+}
+
+// =================================================================
+// NOVO: Funções de desenho para cada tipo de lixo
+// =================================================================
+
+// Desenha uma garrafa PET para representar o plástico
+void desenhaPlastico() {
+    // Corpo da garrafa (vermelho)
+    glColor3f(1.0f, 0.2f, 0.2f); // Vermelho um pouco mais claro
+    glBegin(GL_QUADS);
+        glVertex2f(-1.0f, -2.0f);
+        glVertex2f(1.0f, -2.0f);
+        glVertex2f(1.0f, 0.5f);
+        glVertex2f(-1.0f, 0.5f);
+    glEnd();
+
+    // "Ombro" da garrafa
+    glBegin(GL_TRIANGLES);
+        glVertex2f(-1.0f, 0.5f);
+        glVertex2f(1.0f, 0.5f);
+        glVertex2f(0.5f, 1.5f);
+
+        glVertex2f(-1.0f, 0.5f);
+        glVertex2f(-0.5f, 1.5f);
+        glVertex2f(0.5f, 1.5f);
+    glEnd();
+
+    // Tampa
+    glColor3f(0.8f, 0.0f, 0.0f); // Vermelho escuro
+    glBegin(GL_QUADS);
+        glVertex2f(-0.4f, 1.5f);
+        glVertex2f(0.4f, 1.5f);
+        glVertex2f(0.4f, 1.9f);
+        glVertex2f(-0.4f, 1.9f);
+    glEnd();
+}
+
+// Desenha uma garrafa de vidro quebrada
+void desenhaVidro() {
+    // Pedaços de vidro (verde)
+    glColor3f(0.1f, 0.4f, 0.1f); // Verde escuro
+    glBegin(GL_TRIANGLES);
+        // Pedaço 1
+        glVertex2f(-1.5f, -1.5f);
+        glVertex2f(0.0f, -1.0f);
+        glVertex2f(-1.0f, 0.5f);
+        // Pedaço 2
+        glVertex2f(0.2f, -2.0f);
+        glVertex2f(1.8f, -1.8f);
+        glVertex2f(1.5f, 0.0f);
+        // Pedaço 3
+        glVertex2f(-0.5f, 0.8f);
+        glVertex2f(1.0f, 1.2f);
+        glVertex2f(0.0f, 2.0f);
+    glEnd();
+}
+
+// Desenha uma bola de papel amassado
+void desenhaPapel() {
+    // Corpo principal (azul claro)
+    glColor3f(0.5f, 0.5f, 1.0f);
+    glBegin(GL_POLYGON);
+        glVertex2f(-1.5f, -1.0f);
+        glVertex2f(0.0f, -1.8f);
+        glVertex2f(1.5f, -0.5f);
+        glVertex2f(1.2f, 1.0f);
+        glVertex2f(0.0f, 1.5f);
+        glVertex2f(-1.2f, 1.2f);
+    glEnd();
+
+    // Linhas de contorno para dar efeito de amassado
+    glColor3f(0.2f, 0.2f, 0.8f); // Azul escuro
+    glLineWidth(2);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(-1.5f, -1.0f);
+        glVertex2f(0.0f, -1.8f);
+        glVertex2f(1.5f, -0.5f);
+        glVertex2f(1.2f, 1.0f);
+        glVertex2f(0.0f, 1.5f);
+        glVertex2f(-1.2f, 1.2f);
+    glEnd();
+}
+
+// Desenha uma lata de metal
+void desenhaMetal() {
+    // Corpo da lata (amarelo)
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glBegin(GL_QUADS);
+        glVertex2f(-1.2f, -1.5f);
+        glVertex2f(1.2f, -1.5f);
+        glVertex2f(1.2f, 1.5f);
+        glVertex2f(-1.2f, 1.5f);
+    glEnd();
+
+    // Rótulo/Detalhe cinza
+    glColor3f(0.7f, 0.7f, 0.7f);
+    glBegin(GL_QUADS);
+        glVertex2f(-1.25f, -0.5f);
+        glVertex2f(1.25f, -0.5f);
+        glVertex2f(1.25f, 0.5f);
+        glVertex2f(-1.25f, 0.5f);
+    glEnd();
+
+    // Borda superior e inferior
+    glColor3f(0.6f, 0.6f, 0.6f);
+    glBegin(GL_QUADS);
+        // Borda superior
+        glVertex2f(-1.2f, 1.5f);
+        glVertex2f(1.2f, 1.5f);
+        glVertex2f(1.2f, 1.7f);
+        glVertex2f(-1.2f, 1.7f);
+        // Borda inferior
+        glVertex2f(-1.2f, -1.7f);
+        glVertex2f(1.2f, -1.7f);
+        glVertex2f(1.2f, -1.5f);
+        glVertex2f(-1.2f, -1.5f);
+    glEnd();
 }
 
 void atualizaLixos() {
@@ -130,20 +253,35 @@ void desenhaChao() {
     glEnd();
 }
 
+// MODIFICADO: Função desenhaLixos
 void desenhaLixos() {
     for (int i = 0; i < numLixos; i++) {
         glPushMatrix();
+        // A translação posiciona o lixo na tela
         glTranslatef(lixos[i].x, lixos[i].y, 0);
-        glColor3f(lixos[i].r, lixos[i].g, lixos[i].b);
-        glBegin(GL_QUADS);
-            glVertex2f(-2, 0);
-            glVertex2f(2, 0);
-            glVertex2f(2, -2);
-            glVertex2f(-2, -2);
-        glEnd();
+        // Escala o lixo para um tamanho razoável (opcional, ajuste se necessário)
+        glScalef(1.5, 1.5, 1.5);
+
+        // Seleciona qual função de desenho usar com base no tipo do lixo
+        switch (lixos[i].tipo) {
+            case 0: // Plástico
+                desenhaPlastico();
+                break;
+            case 1: // Vidro
+                desenhaVidro();
+                break;
+            case 2: // Papel
+                desenhaPapel();
+                break;
+            case 3: // Metal
+                desenhaMetal();
+                break;
+        }
+
         glPopMatrix();
     }
 }
+
 
 void desenhaEixos() {
     glColor3f(0, 0, 0);
@@ -184,16 +322,17 @@ void Desenha() {
     // Verifica se o jogo acabou, e se foi resetado, os textos somem
     if (vidas <= 0) {
         glColor3f(0, 0, 0);
-        desenhaTexto(wid/2 - 1, hei/2, "FIM DE JOGO");
-        desenhaTexto(-10, -2, "Pressione End para sair");
-        desenhaTexto(-10, -5, "Pressione Home para voltar ao menu principal");
-        desenhaTexto(-10, -8, "Pressione PgUp para reiniciar");
+        desenhaTexto(-10, 10, "FIM DE JOGO");
+        desenhaTexto(-10, 7, "Pressione End para sair");
+        desenhaTexto(-10, 4, "Pressione Home para voltar ao menu principal");
+        desenhaTexto(-10, 1, "Pressione PgUp para reiniciar");
     }
 
     glFlush();
 }
 
 void Timer(int value) {
+    // garante que apenas três vidas são adicionadas a cada 250 pontos
     if (vidas > 0) {
         int tempoAtual = glutGet(GLUT_ELAPSED_TIME);
 
@@ -204,6 +343,12 @@ void Timer(int value) {
 
         // Aumenta a velocidade a cada 100 pontos
         velocidadeLixo = 0.2 + (pontuacao / 100) * 0.05;
+        // a cada 250 pontos, o jogador ganha 3 vidas
+        if (pontuacao >= ultimoBonus + INTERVALO_BONUS)
+        {
+            ultimoBonus = pontuacao;
+            vidas += BONUS_VIDAS;
+        }
 
         atualizaLixos();
         glutPostRedisplay();
@@ -242,7 +387,7 @@ void TeclasEspeciais(int key, int x, int y) {
         case GLUT_KEY_PAGE_UP: {
             // numLixos = 0 limpa todos os lixos da tela
             numLixos = 0;
-            vidas = 3;
+            vidas = VIDAS_ORIGINAIS;
             pontuacao = 0;
             break;
         }
