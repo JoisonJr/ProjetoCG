@@ -6,6 +6,9 @@
 
 #define TYPES 4
 #define MAX_LIXOS 12
+#define VIDAS_ORIGINAIS 8
+#define BONUS_VIDAS 2
+#define INTERVALO_BONUS 250
 float velocidadeLixo = 0.2; // velocidade inicial
 
 typedef struct {
@@ -26,7 +29,9 @@ int numLixos = 0;
 // tempo em que ocorreu o último spawn
 int ultimoSpawn = 0;
 int pontuacao = 0;
-int vidas = 0; // Número de vidas do jogador
+int vidas = VIDAS_ORIGINAIS; // Número de vidas do jogador
+// garante que 3 vidas são adicionadas a cada 250 pontos
+int ultimoBonus = 0;
 
 int randInt(int max) {
     return rand() % max;
@@ -229,13 +234,125 @@ GLfloat converteXMouse(int x) {
     return xConvertido;
 }
 
+void desenhaSimboloReciclagem(GLfloat x, GLfloat y, GLfloat escala) {
+    // Salva a matriz atual
+    glPushMatrix();
+    
+    // Posiciona e dimensiona o símbolo
+    glTranslatef(x, y, 0);
+    glScalef(escala, escala, 1.0);
+    
+    // Configurações para desenho
+    glLineWidth(2.0);
+    glColor3f(1.0, 1.0, 1.0); // Branco
+    
+    // Primeira seta (superior)
+    glBegin(GL_POLYGON);
+        glVertex2f(0.0, 1.0);
+        glVertex2f(-0.5, 0.0);
+        glVertex2f(-0.3, 0.0);
+        glVertex2f(0.0, 0.6);
+        glVertex2f(0.3, 0.0);
+        glVertex2f(0.5, 0.0);
+    glEnd();
+    
+    // Segunda seta (inferior direita)
+    glPushMatrix();
+    glRotatef(120.0, 0.0, 0.0, 1.0); // Rotaciona 120 graus
+    
+    glBegin(GL_POLYGON);
+        glVertex2f(0.0, 1.0);
+        glVertex2f(-0.5, 0.0);
+        glVertex2f(-0.3, 0.0);
+        glVertex2f(0.0, 0.6);
+        glVertex2f(0.3, 0.0);
+        glVertex2f(0.5, 0.0);
+    glEnd();
+    
+    glPopMatrix();
+    
+    // Terceira seta (inferior esquerda)
+    glPushMatrix();
+    glRotatef(240.0, 0.0, 0.0, 1.0); // Rotaciona 240 graus
+    
+    glBegin(GL_POLYGON);
+        glVertex2f(0.0, 1.0);
+        glVertex2f(-0.5, 0.0);
+        glVertex2f(-0.3, 0.0);
+        glVertex2f(0.0, 0.6);
+        glVertex2f(0.3, 0.0);
+        glVertex2f(0.5, 0.0);
+    glEnd();
+    
+    glPopMatrix();
+    
+    // Restaura a matriz
+    glPopMatrix();
+}
+
 void desenhaLata() {
+    // Corpo principal da lata
     glColor3f(rLata, gLata, bLata);
     glBegin(GL_QUADS);
-        glVertex2f(-3, -19.8);
-        glVertex2f(3, -19.8);
-        glVertex2f(3, -12);
-        glVertex2f(-3, -12);
+        glVertex2f(-3.0, -19.8);
+        glVertex2f(3.0, -19.8);
+        glVertex2f(3.0, -12.0);
+        glVertex2f(-3.0, -12.0);
+    glEnd();
+    
+    // Detalhe superior (borda da lata)
+    glColor3f(rLata*0.7, gLata*0.7, bLata*0.7);
+    glBegin(GL_QUADS);
+        glVertex2f(-3.2, -12.0);
+        glVertex2f(3.2, -12.0);
+        glVertex2f(3.0, -11.8);
+        glVertex2f(-3.0, -11.8);
+    glEnd();
+    
+    // Tampa da lata
+    glColor3f(0.3, 0.3, 0.3);
+    glBegin(GL_QUADS);
+        glVertex2f(-3.5, -11.8);
+        glVertex2f(3.5, -11.8);
+        glVertex2f(3.5, -11.0);
+        glVertex2f(-3.5, -11.0);
+    glEnd();
+    
+    // Abertura da lata
+    glColor3f(0.15, 0.15, 0.15);
+    glBegin(GL_QUADS);
+        glVertex2f(-1.5, -11.8);
+        glVertex2f(1.5, -11.8);
+        glVertex2f(1.5, -11.2);
+        glVertex2f(-1.5, -11.2);
+    glEnd();
+    
+    // Símbolo de reciclagem centralizado
+    desenhaSimboloReciclagem(0.0, -15.0, 0.7);
+    
+    // Pés da lata
+    glColor3f(0.4, 0.4, 0.4);
+    glBegin(GL_QUADS);
+        // Pé esquerdo
+        glVertex2f(-2.8, -19.8);
+        glVertex2f(-2.4, -19.8);
+        glVertex2f(-2.4, -19.5);
+        glVertex2f(-2.8, -19.5);
+        
+        // Pé direito
+        glVertex2f(2.4, -19.8);
+        glVertex2f(2.8, -19.8);
+        glVertex2f(2.8, -19.5);
+        glVertex2f(2.4, -19.5);
+    glEnd();
+    
+    // Reflexo/brilho
+    glColor4f(1.0, 1.0, 1.0, 0.3);
+    glBegin(GL_QUADS);
+        glVertex2f(-2.0, -16.0);
+        glVertex2f(-1.0, -16.0);
+        glVertex2f(-1.0, -13.0);
+        glVertex2f(-2.0, -13.0);
     glEnd();
 }
 
@@ -317,10 +434,10 @@ void Desenha() {
     // Verifica se o jogo acabou, e se foi resetado, os textos somem
     if (vidas <= 0) {
         glColor3f(0, 0, 0);
-        desenhaTexto(wid/2 - 1, hei/2, "FIM DE JOGO");
-        desenhaTexto(-10, -2, "Pressione End para sair");
-        desenhaTexto(-10, -5, "Pressione Home para voltar ao menu principal");
-        desenhaTexto(-10, -8, "Pressione PgUp para reiniciar");
+        desenhaTexto(-10, 10, "FIM DE JOGO");
+        desenhaTexto(-10, 7, "Pressione End para sair");
+        desenhaTexto(-10, 4, "Pressione Home para voltar ao menu principal");
+        desenhaTexto(-10, 1, "Pressione PgUp para reiniciar");
     }
 
     glFlush();
@@ -337,6 +454,12 @@ void Timer(int value) {
 
         // Aumenta a velocidade a cada 100 pontos
         velocidadeLixo = 0.2 + (pontuacao / 100) * 0.05;
+        // a cada 250 pontos, o jogador ganha 3 vidas
+        if (pontuacao >= ultimoBonus + INTERVALO_BONUS)
+        {
+            ultimoBonus = pontuacao;
+            vidas += BONUS_VIDAS;
+        }
 
         atualizaLixos();
         glutPostRedisplay();
@@ -375,7 +498,7 @@ void TeclasEspeciais(int key, int x, int y) {
         case GLUT_KEY_PAGE_UP: {
             // numLixos = 0 limpa todos os lixos da tela
             numLixos = 0;
-            vidas = 3;
+            vidas = VIDAS_ORIGINAIS;
             pontuacao = 0;
             break;
         }
