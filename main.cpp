@@ -126,15 +126,165 @@ void converteCoordenadasMouse(int x, int y, GLfloat* wx, GLfloat* wy) {
     *wy = orthoTop - ((GLfloat)y / windowHeight) * (orthoTop - orthoBottom);
 }
 
-void desenhaLata() {
-    glColor3f(rLata, gLata, bLata);
-    glBegin(GL_QUADS); glVertex2f(-3, -19.8); glVertex2f(3, -19.8); glVertex2f(3, -12); glVertex2f(-3, -12); glEnd();
+// ====================================================
+//  MODIFICADO: Lata de lixo mais detalhada
+// ====================================================
+
+void desenhaSimboloReciclagem(GLfloat x, GLfloat y, GLfloat escala) {
+    // Salva a matriz atual
+    glPushMatrix();
+    
+    // Posiciona e dimensiona o símbolo
+    glTranslatef(x, y, 0);
+    glScalef(escala, escala, 1.0);
+    
+    // Configurações para desenho
+    glLineWidth(2.0);
+    glColor3f(1.0, 1.0, 1.0); // Branco
+    
+    // Primeira seta (superior)
+    glBegin(GL_POLYGON);
+        glVertex2f(0.0, 1.0);
+        glVertex2f(-0.5, 0.0);
+        glVertex2f(-0.3, 0.0);
+        glVertex2f(0.0, 0.6);
+        glVertex2f(0.3, 0.0);
+        glVertex2f(0.5, 0.0);
+    glEnd();
+    
+    // Segunda seta (inferior direita)
+    glPushMatrix();
+    glRotatef(120.0, 0.0, 0.0, 1.0); // Rotaciona 120 graus
+    
+    glBegin(GL_POLYGON);
+        glVertex2f(0.0, 1.0);
+        glVertex2f(-0.5, 0.0);
+        glVertex2f(-0.3, 0.0);
+        glVertex2f(0.0, 0.6);
+        glVertex2f(0.3, 0.0);
+        glVertex2f(0.5, 0.0);
+    glEnd();
+    
+    glPopMatrix();
+    
+    // Terceira seta (inferior esquerda)
+    glPushMatrix();
+    glRotatef(240.0, 0.0, 0.0, 1.0); // Rotaciona 240 graus
+    
+    glBegin(GL_POLYGON);
+        glVertex2f(0.0, 1.0);
+        glVertex2f(-0.5, 0.0);
+        glVertex2f(-0.3, 0.0);
+        glVertex2f(0.0, 0.6);
+        glVertex2f(0.3, 0.0);
+        glVertex2f(0.5, 0.0);
+    glEnd();
+    
+    glPopMatrix();
+    
+    // Restaura a matriz
+    glPopMatrix();
 }
 
+void desenhaLata() {
+    // Corpo principal da lata
+    glColor3f(rLata, gLata, bLata);
+    glBegin(GL_QUADS);
+        glVertex2f(-3.0, -19.8);
+        glVertex2f(3.0, -19.8);
+        glVertex2f(3.0, -12.0);
+        glVertex2f(-3.0, -12.0);
+    glEnd();
+    
+    // Detalhe superior (borda da lata)
+    glColor3f(rLata*0.7, gLata*0.7, bLata*0.7);
+    glBegin(GL_QUADS);
+        glVertex2f(-3.2, -12.0);
+        glVertex2f(3.2, -12.0);
+        glVertex2f(3.0, -11.8);
+        glVertex2f(-3.0, -11.8);
+    glEnd();
+    
+    // Tampa da lata
+    glColor3f(0.3, 0.3, 0.3);
+    glBegin(GL_QUADS);
+        glVertex2f(-3.5, -11.8);
+        glVertex2f(3.5, -11.8);
+        glVertex2f(3.5, -11.0);
+        glVertex2f(-3.5, -11.0);
+    glEnd();
+    
+    // Abertura da lata
+    glColor3f(0.15, 0.15, 0.15);
+    glBegin(GL_QUADS);
+        glVertex2f(-1.5, -11.8);
+        glVertex2f(1.5, -11.8);
+        glVertex2f(1.5, -11.2);
+        glVertex2f(-1.5, -11.2);
+    glEnd();
+    
+    // Símbolo de reciclagem centralizado
+    desenhaSimboloReciclagem(0.0, -15.0, 0.7);
+    
+    // Pés da lata
+    glColor3f(0.4, 0.4, 0.4);
+    glBegin(GL_QUADS);
+        // Pé esquerdo
+        glVertex2f(-2.8, -19.8);
+        glVertex2f(-2.4, -19.8);
+        glVertex2f(-2.4, -19.5);
+        glVertex2f(-2.8, -19.5);
+        
+        // Pé direito
+        glVertex2f(2.4, -19.8);
+        glVertex2f(2.8, -19.8);
+        glVertex2f(2.8, -19.5);
+        glVertex2f(2.4, -19.5);
+    glEnd();
+    
+    // Reflexo/brilho
+    glColor4f(1.0, 1.0, 1.0, 0.3);
+    glBegin(GL_QUADS);
+        glVertex2f(-2.0, -16.0);
+        glVertex2f(-1.0, -16.0);
+        glVertex2f(-1.0, -13.0);
+        glVertex2f(-2.0, -13.0);
+    glEnd();
+}
+
+// ====================================================
+//  MODIFICADO: Chão mais bonito
+// ====================================================
+
 void desenhaChao() {
-    glColor3f(0, 1, 0);
-    glLineWidth(3);
-    glBegin(GL_LINES); glVertex2f(-wid, -20); glVertex2f(wid, -20); glEnd();
+    // Base sólida do chão
+    glColor3f(0.2, 0.7, 0.3); // Verde natural
+    glBegin(GL_QUADS);
+        glVertex2f(-wid, -20);
+        glVertex2f(wid, -20);
+        glVertex2f(wid, -35);
+        glVertex2f(-wid, -35);
+    glEnd();
+    
+    // Linha de separação (grama/terra)
+    glColor3f(0.15, 0.5, 0.2); // Verde mais escuro
+    glLineWidth(1.5);
+    glBegin(GL_LINES);
+        glVertex2f(-wid, -20);
+        glVertex2f(wid, -20);
+    glEnd();
+    
+    // Padrão de grama simples
+    glColor3f(0.25, 0.75, 0.35); // Verde mais claro
+    glLineWidth(1.0);
+    glBegin(GL_LINES);
+        // Fios de grama verticais
+        for (int i = -25; i <= 25; i += 2) {
+            float x = i * (wid / 25.0);
+            glVertex2f(x, -20);
+            glVertex2f(x, -19.8);
+        }
+    glEnd();
 }
 
 void desenhaLixos() {
@@ -210,7 +360,23 @@ void desenhaPausa() {
     desenhaTexto(-8, -4, "Voltar para o Menu Inicial");
 }
 
+// =======================================
+//  ADIÇÃO: Função que deenha um céu azul
+// =======================================
+
+void desenhaCeu() {
+    glColor3f(0.53f, 0.81f, 0.98f);
+    glBegin(GL_QUADS);
+        glVertex2f(-wid, hei);
+        glVertex2f(wid, hei);
+        glVertex2f(wid, -hei);
+        glVertex2f(-wid, -hei);
+    glEnd();
+}
+
 void desenhaJogo() {
+    // adição da função em desenhaJogo
+    desenhaCeu();
     desenhaChao();
     desenhaLixos();
     glPushMatrix();
@@ -220,6 +386,7 @@ void desenhaJogo() {
     char texto[50];
     glColor3f(0, 0, 0);
     sprintf(texto, "Pontos: %d", pontuacao);
+    // MODIFICAÇÃO: não era possível ver o texto da pontuação, então suas coordenadas foram modificadas
     desenhaTexto(-wid + 1, hei - 27, texto);
     sprintf(texto, "Vidas: %d", vidas);
     desenhaTexto(-wid + 1, hei - 30, texto);
